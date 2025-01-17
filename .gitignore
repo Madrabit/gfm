@@ -1,0 +1,14 @@
+# Для Go
+*.exe
+*.test
+*.out
+vendor/
+
+# Для JetBrains IDE (например, IntelliJ IDEA, PhpStorm, WebStorm)
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Файлы логов
+*.log
