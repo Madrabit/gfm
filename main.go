@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -86,6 +88,12 @@ func execCommand() error {
 			return err
 		}
 		return move(src, dst)
+	case "wc":
+		src, err := getArgs(1)
+		if err != nil {
+			return err
+		}
+		return wordsCounter(src)
 	default:
 		return errors.New("unknown command")
 	}
@@ -193,4 +201,40 @@ func getArgs(argIdx int) (string, error) {
 		return "", errors.New("no arg entered")
 	}
 	return arg, nil
+}
+
+func wordsCounter(fileName string) error {
+	bytes, err := os.Stat(fileName)
+	if err != nil {
+		return errors.New("cant read byte size from file")
+	}
+	size := bytes.Size()
+	file, err := os.Open(fileName)
+	if err != nil {
+		return errors.New("cant open file")
+	}
+	defer file.Close()
+	reader := bufio.NewReader(file)
+	var linesCounter int
+	var wordsCounter int
+	for {
+		line, err := reader.ReadString('\n')
+		wordsCounter += len(strings.Fields(line))
+		if err != nil {
+			// Если ошибка EOF, завершаем цикл
+			if err.Error() != "EOF" {
+				return err
+			}
+			// Если есть последняя строка, увеличиваем счетчик
+			if len(line) > 0 {
+				linesCounter++
+				wordsCounter += len(strings.Fields(line))
+			}
+			break
+		}
+		linesCounter++
+
+	}
+	fmt.Printf("%d %d %d", size, linesCounter, wordsCounter)
+	return nil
 }
